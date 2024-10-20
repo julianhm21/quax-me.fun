@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Adaptable con Redirección y Anti-Spam</title>
+    <style>
+        /* Asegúrate de que el contenedor del video sea adaptable */
+        #videoContainer {
+            max-width: 600px; /* Tamaño máximo para escritorio */
+            width: 100%; /* Adaptarse al tamaño de la pantalla */
+            margin: 0 auto; /* Centrarse en pantallas grandes */
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Superposición para capturar eventos táctiles en móviles */
+        #videoOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: none; /* Por defecto, oculto */
+        }
+    </style>
+</head>
+<body>
+    <div id="videoContainer">
+        <video id="videoPlayer" style="width: 100%; height: auto;" controls playsinline>
+            <source src="https://qu.ax/WjLj.mp4" type="video/mp4">
+            Tu navegador no soporta la reproducción de videos.
+        </video>
+        <div id="videoOverlay"></div>
+    </div>
+
+    <script>
+        const redirectUrl = 'https://www.cpmrevenuegate.com/kvih3wvkg4?key=8248c49d1154bc4635e8bc45b392964e'; // Reemplazar con tu URL
+        const maxRedirects = 2;
+        const antiSpamLimit = 5; // Número de redirecciones permitidas en el tiempo establecido
+        const antiSpamTimeFrame = 60 * 1000; // Marco de tiempo en milisegundos (60 segundos)
+
+        // Verificar si es una nueva sesión
+        if (!sessionStorage.getItem('sessionStarted')) {
+            localStorage.removeItem('clickCount');
+            sessionStorage.setItem('sessionStarted', 'true');
+        }
+
+        // Inicializar el contador de clics y la marca de tiempo desde localStorage o establecer en 0/Date.now()
+        let clickCount = parseInt(localStorage.getItem('clickCount')) || 0;
+        let lastClickTime = parseInt(localStorage.getItem('lastClickTime')) || Date.now();
+
+        // Función para verificar las reglas anti-spam
+        function checkAntiSpam() {
+            const currentTime = Date.now();
+            const timeDiff = currentTime - lastClickTime;
+
+            // Si la diferencia de tiempo es mayor al marco de tiempo, reiniciar el contador de clics
+            if (timeDiff > antiSpamTimeFrame) {
+                clickCount = 0;
+                localStorage.setItem('clickCount', clickCount);
+                localStorage.setItem('lastClickTime', currentTime);
+                return true;
+            }
+
+            // Si el número de clics dentro del marco de tiempo es menor al límite, permitir clic
+            if (clickCount < antiSpamLimit) {
+                localStorage.setItem('lastClickTime', currentTime);
+                return true;
+            }
+
+            return false;
+        }
+
+        // Función para manejar clics
+        function handleClick(event) {
+            if (checkAntiSpam()) {
+                clickCount++;
+                localStorage.setItem('clickCount', clickCount);
+                if (clickCount <= maxRedirects) {
+                    window.location.href = redirectUrl;
+                    event.preventDefault();
+                } else {
+                    document.getElementById('videoPlayer').setAttribute('controls', 'controls'); // Mostrar controles de video
+                }
+            } else {
+                alert('Demasiados intentos en un corto periodo. Por favor, inténtalo más tarde.');
+            }
+        }
+
+        // Función para manejar eventos táctiles
+        function handleTouch(event) {
+            handleClick(event);
+        }
+
+        // Configuración inicial y detección de dispositivos móviles
+        document.addEventListener("DOMContentLoaded", function() {
+            var videoPlayer = document.getElementById('videoPlayer');
+            const videoOverlay = document.getElementById('videoOverlay');
+
+            videoPlayer.addEventListener('ended', function() {
+                window.location.href = redirectUrl;
+            });
+
+            // Detectar si es móvil y agregar los eventos
+            if (/Mobi|Android/i.test(navigator.userAgent)) {
+                videoOverlay.style.display = 'block'; // Mostrar superposición en móviles
+
+                videoOverlay.addEventListener('click', handleClick, true); // Fase de captura
+                videoOverlay.addEventListener('touchstart', handleTouch, true); // Fase de captura
+
+                // Intentar reproducir automáticamente en móviles y desactivar controles inicialmente
+                videoPlayer.setAttribute('autoplay', 'true');
+                videoPlayer.setAttribute('muted', 'true'); // Algunos navegadores requieren que el video esté en silencio para reproducirse automáticamente
+                videoPlayer.removeAttribute('controls');
+
+                videoPlayer.play().catch(function(error) {
+                    console.log('La reproducción automática fue bloqueada por el navegador.');
+                });
+            } else {
+                // En dispositivos de escritorio, mostrar los controles desde el inicio
+                videoPlayer.setAttribute('controls', 'controls');
+            }
+        });
+    </script>
+</body>
+</html>
