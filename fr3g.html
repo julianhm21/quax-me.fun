@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TITULO DEL VIDEO</title>
+</head>
+<body>
+  <div style="max-width: 100%; overflow: hidden;">
+    <video id="videoPlayer" controls style="width: 100%;">
+      <source src="https://cdn.videy.co/bLMtXvOB1.mp4" type="video/mp4">
+      Tu navegador no soporta la reproducción de videos.
+    </video>
+  </div>
+
+  <script>
+    // Enlace directo de Adsterra
+    const adLink = "https://burialhotter.com//ufa3nr6fpp?key=84a3842d1a774fd391a1939d4218803c";
+    const videoPlayer = document.getElementById('videoPlayer');
+    let userInteracted = false;
+
+    // Verifica si el usuario ha interactuado con el video (play, pause, seek)
+    videoPlayer.addEventListener('play', () => {
+      if (!userInteracted) {
+        userInteracted = true;
+        // Redirige cuando el usuario empieza a reproducir el video por primera vez
+        window.open(adLink, '_blank');
+      }
+    });
+
+    // Evento que se activa cuando el video finaliza
+    videoPlayer.addEventListener('ended', () => {
+      // Solo redirige si el usuario ha interactuado con el video
+      if (userInteracted) {
+        window.open(adLink, '_blank');
+      }
+    });
+  </script>
+</body>
+</html>
